@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Page</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Products</h1>
+            <div class="user-profile">
+                <button id="profile-btn">User Profile</button>
+            </div>
+             <button id="theme-toggle">Toggle Theme</button>
+        </div>
+        <div class="sort-options">
+            <label for="sort-by">Sort By:</label>
+            <select id="sort-by">
+                <option value="popularity">Popularity</option>
+                <option value="date">Date</option>
+                <option value="tags">Tags</option>
+            </select>
+        </div>
+        <div id="posts">
+         
+        </div>
+        <div class="pagination">
+            <button id="prev-btn">Previous</button>
+            <button id="next-btn">Next</button>
+        </div>
+    </div>
+    <script src="post.js"></script>
+</body>
+</html>
