@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post Page</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -13,18 +15,19 @@
             <div class="user-profile">
                 <button id="profile-btn">User Profile</button>
             </div>
-             <button id="theme-toggle">🌙</button>
+            <button id="theme-toggle">🌙</button>
         </div>
         <div class="sort-options">
             <label for="sort-by">Sort By:</label>
             <select id="sort-by">
-                <option value="popularity">Popularity</option>
                 <option value="date">Date</option>
                 <option value="tags">Tags</option>
+                <option value="likes">Likes</option>
+                <!-- REMOVED POPULARITY-->
             </select>
         </div>
         <div id="posts">
-         
+
         </div>
         <div class="pagination">
             <button id="prev-btn">Previous</button>
@@ -33,4 +36,5 @@
     </div>
     <script src="post.js"></script>
 </body>
+
 </html>

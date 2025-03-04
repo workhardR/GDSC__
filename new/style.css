@@ -180,3 +180,13 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed; 
 }
+/* Add this to your style.css */
+.likeBtn {
+    color: white; /* Initial color */
+    font-weight: bold;
+}
+
+.dislikeBtn {
+    color: white; /* Initial color */
+    font-weight: bold;
+}

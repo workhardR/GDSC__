@@ -4,17 +4,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const profileBtn = document.getElementById('profile-btn');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
-     const themeToggle = document.getElementById('theme-toggle');
+    const themeToggle = document.getElementById('theme-toggle');
 
     let allProducts = [];
     let currentPage = 1;
-    const productsPerPage = 10; 
+    const productsPerPage = 10;
 
     if (localStorage.getItem('darkMode') === 'enabled') {
         document.body.classList.add('dark-mode');
     }
 
-    
     loadProducts();
 
     sortBySelect.addEventListener('change', function() {
@@ -40,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-     themeToggle.addEventListener('click', function() {
+    themeToggle.addEventListener('click', function() {
         document.body.classList.toggle('dark-mode');
         if (document.body.classList.contains('dark-mode')) {
             localStorage.setItem('darkMode', 'enabled');
@@ -54,7 +53,11 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('https://dummyjson.com/products');
             const data = await response.json();
-            allProducts = data.products;
+            allProducts = data.products.map(product => ({
+                ...product,
+                rating: Math.floor(Math.random() * 100) + 1,
+                dislikes: Math.floor(Math.random() * 50)
+            }));
             displayProducts(getProductsForPage(currentPage));
         } catch (error) {
             console.error('Error fetching products:', error);
@@ -74,9 +77,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <p><strong>Category:</strong> ${product.category}</p>
                 <p><strong>Tags:</strong> ${product.tags ? product.tags.join(', ') : 'N/A'}</p>
                 <p><strong>Likes:</strong> <span class="like-count">${product.rating}</span></p>
-                <p><strong>Dislikes:</strong> <span class="dislike-count">${getDislikeCount(product.id)}</span></p>
-                <button class="likeBtn ${isLiked(product.id) ? 'liked' : ''}" data-product-id="${product.id}">Like</button>
-                <button class="dislikeBtn ${isDisliked(product.id) ? 'disliked' : ''}" data-product-id="${product.id}">Dislike</button>
+                <p><strong>Dislikes:</strong> <span class="dislike-count">${product.dislikes}</span></p>
+                <button class="likeBtn" data-product-id="${product.id}" style="color: white; font-weight: bold;">Like</button>
+                <button class="dislikeBtn" data-product-id="${product.id}" style="color: white; font-weight: bold;">Dislike</button>
                 <div class="comment-section">
                     <h4>Comments:</h4>
                     <div class="comments"></div>
@@ -96,75 +99,51 @@ document.addEventListener('DOMContentLoaded', function() {
             const commentsDiv = postDiv.querySelector('.comments');
 
             likeBtn.addEventListener('click', function(event) {
-                event.stopPropagation(); 
+                event.stopPropagation();
                 const productId = parseInt(this.dataset.productId);
                 const product = allProducts.find(p => p.id === productId);
 
-                let likedProducts = JSON.parse(localStorage.getItem('likedProducts')) || [];
-                let dislikedProducts = JSON.parse(localStorage.getItem('dislikedProducts')) || [];
-
-                if (!this.classList.contains('liked')) {
-                    this.classList.add('liked');
-                    this.classList.remove('disliked');
-                    dislikeBtn.classList.remove('disliked');
-
-                    likedProducts.push(product);
-                    dislikedProducts = dislikedProducts.filter(p => p.id !== productId);
-
-                    
-                    product.rating = product.rating + 1;
-                    likeCountSpan.textContent = product.rating;
-
+                if (likeBtn.style.color === 'green') {
+                    likeBtn.style.color = 'white';
+                    product.rating--;
                 } else {
-                    this.classList.remove('liked');
-                    likedProducts = likedProducts.filter(p => p.id !== productId);
-
-                   
-                     product.rating = product.rating - 1;
-                    likeCountSpan.textContent = product.rating;
+                    likeBtn.style.color = 'green';
+                    dislikeBtn.style.color = 'white';
+                    product.rating++;
+                    if (product.dislikes > 0) {
+                        product.dislikes--;
+                    }
                 }
 
-                localStorage.setItem('likedProducts', JSON.stringify(likedProducts));
-                localStorage.setItem('dislikedProducts', JSON.stringify(dislikedProducts));
-                updateLikeDislikeCounts(productId, likeCountSpan, dislikeCountSpan);
-                dislikeCountSpan.textContent = getDislikeCount(productId);
+                likeCountSpan.textContent = product.rating;
+                dislikeCountSpan.textContent = product.dislikes;
+                sortProducts(sortBySelect.value);
             });
 
             dislikeBtn.addEventListener('click', function(event) {
-                event.stopPropagation(); 
+                event.stopPropagation();
                 const productId = parseInt(this.dataset.productId);
                 const product = allProducts.find(p => p.id === productId);
-                let dislikedCount = parseInt(dislikeCountSpan.textContent); 
-                let likedProducts = JSON.parse(localStorage.getItem('likedProducts')) || [];
-                let dislikedProducts = JSON.parse(localStorage.getItem('dislikedProducts')) || [];
 
-                if (!this.classList.contains('disliked')) {
-                    this.classList.add('disliked');
-                    this.classList.remove('liked');
-                    likeBtn.classList.remove('liked');
-
-                    dislikedProducts.push(product);
-                    likedProducts = likedProducts.filter(p => p.id !== productId);
-
-                    dislikedCount++; 
-                    dislikeCountSpan.textContent = dislikedCount; 
-
+                if (dislikeBtn.style.color === 'red') {
+                    dislikeBtn.style.color = 'white';
+                    product.dislikes--;
                 } else {
-                    this.classList.remove('disliked');
-                    dislikedProducts = dislikedProducts.filter(p => p.id !== productId);
-
-                     dislikedCount--; 
-                    dislikeCountSpan.textContent = dislikedCount; 
+                    dislikeBtn.style.color = 'red';
+                    likeBtn.style.color = 'white';
+                    product.dislikes++;
+                    if (product.rating > 0) {
+                        product.rating--;
+                    }
                 }
 
-                localStorage.setItem('likedProducts', JSON.stringify(likedProducts));
-                localStorage.setItem('dislikedProducts', JSON.stringify(dislikedProducts));
-                updateLikeDislikeCounts(productId, likeCountSpan, dislikeCountSpan);
-                dislikeCountSpan.textContent = getDislikeCount(productId);
+                likeCountSpan.textContent = product.rating;
+                dislikeCountSpan.textContent = product.dislikes;
+                sortProducts(sortBySelect.value);
             });
 
             commentBtn.addEventListener('click', function(event) {
-                event.stopPropagation(); 
+                event.stopPropagation();
                 const commentText = commentInput.value.trim();
                 if (commentText !== '') {
                     const commentElement = document.createElement('p');
@@ -180,11 +159,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let sortedProducts = [...allProducts];
 
         switch (sortBy) {
-            case 'popularity':
+            case 'likes':
                 sortedProducts.sort((a, b) => b.rating - a.rating);
-                break;
-            case 'date':
-                sortedProducts.sort((a, b) => b.id - a.id);
                 break;
             case 'tags':
                 sortedProducts.sort((a, b) => a.category.localeCompare(b.category));
@@ -192,23 +168,9 @@ document.addEventListener('DOMContentLoaded', function() {
             default:
                 break;
         }
-       currentPage = 1; 
+        allProducts = sortedProducts;
+        currentPage = 1;
         displayProducts(getProductsForPage(currentPage));
-    }
-
-     function isLiked(productId) {
-        let likedProducts = JSON.parse(localStorage.getItem('likedProducts')) || [];
-        return likedProducts.some(product => product.id === productId);
-    }
-
-    function isDisliked(productId) {
-        let dislikedProducts = JSON.parse(localStorage.getItem('dislikedProducts')) || [];
-        return dislikedProducts.some(product => product.id === productId);
-    }
-
-   function getDislikeCount(productId) {
-        let dislikedProducts = JSON.parse(localStorage.getItem('dislikedProducts')) || [];
-        return dislikedProducts.filter(product => product.id === productId).length;
     }
 
     function getProductsForPage(page) {
@@ -217,4 +179,3 @@ document.addEventListener('DOMContentLoaded', function() {
         return allProducts.slice(startIndex, endIndex);
     }
 });
-
